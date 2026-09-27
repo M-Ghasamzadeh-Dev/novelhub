@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>رمان‌های ذخیره‌شده من — NovelHub</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container section" id="main">
+  <div class="section-head"><h2>رمان‌های ذخیره‌شده من</h2></div>
+  <div class="novel-grid" id="favGrid"></div>
+</main>
+<footer id="site-footer"></footer>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/novels.js"></script>
+<script>
+window.pageInit = function(){
+  if(!Auth.isLoggedIn()){ location.href = 'login.html'; return; }
+  const u = Auth.currentUser();
+  const list = Repo.bookmarks().filter(b=>b.userId===u.id).map(b=>Repo.novelById(b.novelId)).filter(Boolean);
+  const grid = document.getElementById('favGrid');
+  if(!list.length){
+    grid.outerHTML = `<div class="empty-state">
+      <div class="icon">🔖</div><h3>هنوز رمانی ذخیره نکرده‌اید.</h3>
+      <p>رمان‌های مورد علاقه‌تان را با زدن آیکون ستاره ذخیره کنید.</p>
+      <a href="categories.html" class="btn btn-primary">مرور رمان‌ها</a>
+    </div>`;
+    return;
+  }
+  Novels.renderGrid(grid, list);
+  Novels.bindCardEvents(grid);
+};
+</script>
+<script src="../js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NovelHub — داستان بعدی زندگی‌ات را پیدا کن</title>
+<meta name="description" content="NovelHub؛ پلتفرم انتشار و مطالعه رمان و داستان فارسی. رمان بخوانید، بنویسید و با نویسنده‌های محبوب همراه شوید.">
+<meta property="og:title" content="NovelHub — خانه‌ی داستان‌های فارسی">
+<meta property="og:description" content="رمان بخوانید، منتشر کنید و دنبال کنید.">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+<a href="#main" class="skip-link">رفتن به محتوای اصلی</a>
+<header id="site-header"></header>
+
+<main id="main">
+  <section class="hero">
+    <div class="container hero-inner">
+      <span class="hero-eyebrow">هزاران داستان، یک خانه</span>
+      <h1>داستان بعدی زندگی‌ات را پیدا کن</h1>
+      <p>NovelHub خانه‌ی رمان‌ها و داستان‌های فارسی‌ست؛ جایی برای خواندن بی‌وقفه، نوشتن آزادانه و کشف نویسنده‌های تازه.</p>
+      <div class="hero-actions">
+        <a href="categories.html" class="btn btn-primary">شروع مطالعه</a>
+        <a href="create-novel.html" class="btn btn-ghost">نوشتن رمان</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><b id="statNovels">—</b><span>رمان منتشر شده</span></div>
+        <div class="hero-stat"><b>+۳۰۰</b><span>نویسنده فعال</span></div>
+        <div class="hero-stat"><b>+۲۵۰هزار</b><span>خواننده ماهانه</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section container">
+    <div class="section-head"><h2>دسته‌بندی‌ها</h2><a class="see-all" href="categories.html">مشاهده همه ←</a></div>
+    <div class="cat-grid" id="categoryGrid"></div>
+  </section>
+
+  <section class="section container">
+    <div class="section-head"><h2>رمان‌های محبوب</h2><a class="see-all" href="search.html?sort=popular">مشاهده همه ←</a></div>
+    <div class="novel-grid" id="popularGrid"></div>
+  </section>
+
+  <section class="section container">
+    <div class="section-head"><h2>رمان‌های جدید</h2><a class="see-all" href="search.html?sort=newest">مشاهده همه ←</a></div>
+    <div class="novel-grid" id="newGrid"></div>
+  </section>
+
+  <section class="section container">
+    <div class="section-head"><h2>در حال انتشار</h2><a class="see-all" href="search.html?sort=ongoing">مشاهده همه ←</a></div>
+    <div class="novel-grid" id="ongoingGrid"></div>
+  </section>
+
+  <section class="section container">
+    <div class="section-head"><h2>نویسندگان محبوب</h2></div>
+    <div class="author-grid" id="authorGrid"></div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/novels.js"></script>
+<script>
+window.pageInit = function(){
+  document.getElementById('statNovels').textContent = Repo.novels().length + '+';
+
+  const catGrid = document.getElementById('categoryGrid');
+  catGrid.innerHTML = GENRES.map(g=>`
+    <a class="cat-card" href="categories.html?g=${g.id}">
+      <div class="cat-icon">${g.icon}</div>
+      <b>${g.name}</b>
+      <span>${Repo.novels().filter(n=>n.genres.includes(g.id)).length} رمان</span>
+    </a>`).join('');
+
+  const novels = Repo.novels();
+  const popular = document.getElementById('popularGrid');
+  const fresh = document.getElementById('newGrid');
+  const ongoing = document.getElementById('ongoingGrid');
+
+  [popular, fresh, ongoing].forEach(g=> g.innerHTML = UI.novelCardSkeleton(6));
+
+  setTimeout(()=>{
+    Novels.renderGrid(popular, Novels.sortList(novels,'popular').slice(0,6));
+    Novels.renderGrid(fresh, Novels.sortList(novels,'newest').slice(0,6));
+    Novels.renderGrid(ongoing, Novels.sortList(novels,'ongoing').slice(0,6));
+    [popular, fresh, ongoing].forEach(g=> Novels.bindCardEvents(g));
+  }, 350);
+
+  const authorGrid = document.getElementById('authorGrid');
+  authorGrid.innerHTML = Repo.authors().map(a=>`
+    <a class="author-card" href="profile.html?author=${a.id}">
+      <div class="author-avatar"><img src="${a.avatar}" alt="${a.name}"></div>
+      <b>${a.name}</b>
+      <div class="author-stats">${Repo.novels().filter(n=>n.author===a.id).length} رمان · ${UI.formatNum(a.followers)} دنبال‌کننده</div>
+    </a>`).join('');
+};
+</script>
+<script src="../js/app.js"></script>
+</body>
+</html>

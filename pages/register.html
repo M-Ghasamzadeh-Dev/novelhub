@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ثبت‌نام — NovelHub</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container">
+  <div class="form-card">
+    <h1>ساخت حساب کاربری</h1>
+    <p class="form-sub">به جمع خواننده‌ها و نویسنده‌های NovelHub بپیوند.</p>
+
+    <div class="image-drop" id="avatarDrop" tabindex="0" role="button" aria-label="انتخاب عکس پروفایل">
+      <img id="avatarPreview" class="hidden" alt="پیش‌نمایش عکس پروفایل">
+      <div id="avatarPlaceholder">🖼️ تصویر پروفایل را انتخاب کنید (اختیاری)</div>
+      <button type="button" class="btn btn-ghost btn-sm drop-remove hidden" id="removeAvatarBtn">حذف تصویر</button>
+      <input type="file" id="avatarInput" accept="image/*" class="hidden">
+    </div>
+
+    <form id="registerForm" novalidate style="margin-top:18px;">
+      <div class="field">
+        <label for="username">نام کاربری</label>
+        <input type="text" id="username" required minlength="3">
+      </div>
+      <div class="field">
+        <label for="email">ایمیل</label>
+        <input type="email" id="email" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="password">رمز عبور</label>
+          <input type="password" id="password" required minlength="6">
+        </div>
+        <div class="field">
+          <label for="passwordConfirm">تکرار رمز عبور</label>
+          <input type="password" id="passwordConfirm" required>
+        </div>
+      </div>
+      <small class="error hidden" id="registerError"></small>
+      <div class="checkbox-row" style="margin-top:14px;">
+        <input type="checkbox" id="acceptRules" required>
+        <label for="acceptRules">قوانین سایت را مطالعه کرده‌ام و <a href="rules.html" style="color:var(--gold);">قبول دارم</a>.</label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">ثبت‌نام</button>
+    </form>
+    <p class="form-foot">حساب دارید؟ <a href="login.html">وارد شوید</a></p>
+  </div>
+</main>
+<footer id="site-footer"></footer>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/ui.js"></script>
+<script>
+window.pageInit = function(){
+  let avatarData = null;
+  const drop = document.getElementById('avatarDrop');
+  const input = document.getElementById('avatarInput');
+  const preview = document.getElementById('avatarPreview');
+  const placeholder = document.getElementById('avatarPlaceholder');
+  const removeBtn = document.getElementById('removeAvatarBtn');
+
+  drop.addEventListener('click', ()=> input.click());
+  input.addEventListener('change', ()=>{
+    const file = input.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      avatarData = reader.result;
+      preview.src = avatarData;
+      preview.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+      removeBtn.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  });
+  removeBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    avatarData = null; input.value='';
+    preview.classList.add('hidden'); placeholder.classList.remove('hidden'); removeBtn.classList.add('hidden');
+  });
+
+  document.getElementById('registerForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const errEl = document.getElementById('registerError');
+    errEl.classList.add('hidden');
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('passwordConfirm').value;
+    const acceptRules = document.getElementById('acceptRules').checked;
+
+    if(password !== passwordConfirm){ errEl.textContent = 'رمز عبور و تکرار آن یکسان نیستند.'; errEl.classList.remove('hidden'); return; }
+    if(!acceptRules){ errEl.textContent = 'برای ثبت‌نام باید قوانین سایت را بپذیرید.'; errEl.classList.remove('hidden'); return; }
+
+    const result = Auth.register({username, email, password, avatar:avatarData});
+    if(!result.ok){ errEl.textContent = result.error; errEl.classList.remove('hidden'); return; }
+
+    Toast.show('ثبت‌نام با موفقیت انجام شد!', 'success');
+    setTimeout(()=> location.href = 'home.html', 600);
+  });
+};
+</script>
+<script src="../js/app.js"></script>
+</body>
+</html>

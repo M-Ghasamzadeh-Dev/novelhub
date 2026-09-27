@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>داشبورد نویسنده — NovelHub</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/dashboard.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container">
+  <div class="dashboard-layout">
+    <aside class="dashboard-sidebar">
+      <a href="dashboard.html" class="active">📊 داشبورد</a>
+      <a href="my-novels.html">📚 رمان‌های من</a>
+      <a href="create-novel.html">✍️ ایجاد رمان</a>
+      <a href="my-novels.html">📖 فصل‌ها</a>
+      <a href="my-novels.html">📝 پیش‌نویس‌ها</a>
+      <a href="dashboard.html">📈 آمار</a>
+      <a href="my-novels.html">💬 نظرات</a>
+      <a href="profile.html">⚙️ تنظیمات</a>
+    </aside>
+    <div>
+      <div class="section-head"><h2>سلام، <span id="dashUserName"></span> 👋</h2></div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-icon">📚</div><b id="statNovels">۰</b><span>رمان منتشرشده</span></div>
+        <div class="stat-card"><div class="stat-icon">👁️</div><b id="statViews">۰</b><span>بازدید کل</span></div>
+        <div class="stat-card"><div class="stat-icon">👍</div><b id="statLikes">۰</b><span>لایک کل</span></div>
+        <div class="stat-card"><div class="stat-icon">💬</div><b id="statComments">۰</b><span>نظر کل</span></div>
+      </div>
+      <div class="section-head"><h2>رمان‌های اخیر</h2><a class="see-all" href="my-novels.html">مشاهده همه ←</a></div>
+      <div id="recentNovelsWrap"></div>
+    </div>
+  </div>
+</main>
+<footer id="site-footer"></footer>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/dashboard.js"></script>
+<script>
+window.pageInit = function(){
+  if(!Auth.isLoggedIn()){ location.href = 'login.html'; return; }
+  const u = Auth.currentUser();
+  document.getElementById('dashUserName').textContent = u.username;
+  const stats = Dashboard.stats();
+  document.getElementById('statNovels').textContent = stats.novelCount.toLocaleString('fa-IR');
+  document.getElementById('statViews').textContent = UI.formatNum(stats.views);
+  document.getElementById('statLikes').textContent = UI.formatNum(stats.likes);
+  document.getElementById('statComments').textContent = stats.comments.toLocaleString('fa-IR');
+
+  const mine = Dashboard.myNovels();
+  const wrap = document.getElementById('recentNovelsWrap');
+  if(!mine.length){
+    wrap.innerHTML = `<div class="empty-state">
+      <div class="icon">✍️</div><h3>هنوز رمانی منتشر نکرده‌اید.</h3>
+      <p>اولین داستان خود را همین حالا بنویسید.</p>
+      <a href="create-novel.html" class="btn btn-primary">نوشتن اولین رمان</a>
+    </div>`;
+    return;
+  }
+  wrap.innerHTML = `<table class="dash-table">
+    <thead><tr><th></th><th>عنوان</th><th>وضعیت</th><th>فصل‌ها</th><th>بازدید</th><th>لایک</th><th>عملیات</th></tr></thead>
+    <tbody>
+      ${mine.slice(0,5).map(n=>`<tr>
+        <td><div class="row-cover"><img src="${n.cover}" alt=""></div></td>
+        <td>${n.title}</td>
+        <td>${Novels.statusLabel(n.status)}</td>
+        <td>${n.chapterCount}</td>
+        <td>${UI.formatNum(n.views)}</td>
+        <td>${UI.formatNum(n.likes)}</td>
+        <td class="dash-actions">
+          <a class="btn btn-ghost btn-sm" href="edit-novel.html?id=${n.id}">ویرایش</a>
+        </td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+};
+</script>
+<script src="../js/app.js"></script>
+</body>
+</html>
