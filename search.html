@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="author" content="مهدی قسم زاده">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>جستجوی رمان — NovelHub</title>
+<meta name="description" content="جستجوی رمان بر اساس عنوان، نویسنده، ژانر و تگ در NovelHub.">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+<a href="#main" class="skip-link">رفتن به محتوای اصلی</a>
+<header id="site-header"></header>
+
+<main id="main" class="container section">
+  <div class="section-head"><h2>جستجوی رمان</h2></div>
+
+  <div class="filter-bar">
+    <input type="search" id="searchInput" placeholder="جستجو بر اساس عنوان، نویسنده، ژانر یا تگ..." style="flex:1;min-width:220px;">
+    <select id="genreFilter">
+      <option value="">همه ژانرها</option>
+    </select>
+    <select id="statusFilter">
+      <option value="">همه وضعیت‌ها</option>
+      <option value="ongoing">در حال انتشار</option>
+      <option value="complete">تکمیل‌شده</option>
+    </select>
+    <select id="ageFilter">
+      <option value="">همه رده‌های سنی</option>
+      <option value="general">عمومی</option>
+      <option value="13">+۱۳</option>
+      <option value="16">+۱۶</option>
+      <option value="18">+۱۸</option>
+    </select>
+    <select id="sortFilter">
+      <option value="newest">جدیدترین</option>
+      <option value="popular">محبوب‌ترین</option>
+      <option value="views">بیشترین بازدید</option>
+    </select>
+  </div>
+
+  <p class="text-muted" id="resultCount"></p>
+  <div class="novel-grid" id="resultGrid"></div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/novels.js"></script>
+<script src="../js/search.js"></script>
+<script>
+window.pageInit = function(){
+  const params = new URLSearchParams(location.search);
+  const genreSel = document.getElementById('genreFilter');
+  genreSel.innerHTML += GENRES.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+
+  const input = document.getElementById('searchInput');
+  const statusFilter = document.getElementById('statusFilter');
+  const ageFilter = document.getElementById('ageFilter');
+  const sortFilter = document.getElementById('sortFilter');
+  const grid = document.getElementById('resultGrid');
+  const countEl = document.getElementById('resultCount');
+
+  if(params.get('q')) input.value = params.get('q');
+  if(params.get('sort')) sortFilter.value = params.get('sort');
+  if(params.get('g')) genreSel.value = params.get('g');
+
+  let debounce;
+  function refresh(){
+    const list = Search.run({q:input.value, genre:genreSel.value, status:statusFilter.value, age:ageFilter.value, sort:sortFilter.value});
+    countEl.textContent = list.length + ' رمان یافت شد';
+    Novels.renderGrid(grid, list);
+    Novels.bindCardEvents(grid);
+  }
+  input.addEventListener('input', ()=>{ clearTimeout(debounce); debounce = setTimeout(refresh, 200); });
+  [genreSel, statusFilter, ageFilter, sortFilter].forEach(el=> el.addEventListener('change', refresh));
+  refresh();
+};
+</script>
+<script src="../js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="author" content="مهدی قسم زاده">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>رمان‌های من — NovelHub</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/dashboard.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container">
+  <div class="dashboard-layout">
+    <aside class="dashboard-sidebar">
+      <a href="dashboard.html">داشبورد</a>
+      <a href="my-novels.html" class="active">رمان‌های من</a>
+      <a href="create-novel.html">ایجاد رمان</a>
+      <a href="my-novels.html">فصل‌ها</a>
+      <a href="my-novels.html">پیش‌نویس‌ها</a>
+      <a href="dashboard.html">آمار</a>
+      <a href="my-novels.html">نظرات</a>
+      <a href="profile.html">تنظیمات</a>
+    </aside>
+    <div>
+      <div class="section-head"><h2>رمان‌های من</h2><a href="create-novel.html" class="btn btn-primary btn-sm">+ رمان جدید</a></div>
+      <div id="tableWrap"></div>
+    </div>
+  </div>
+</main>
+<footer id="site-footer"></footer>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/novels.js"></script>
+<script src="../js/dashboard.js"></script>
+<script>
+window.pageInit = function(){
+  if(!Auth.isLoggedIn()){ location.href = 'login.html'; return; }
+  renderTable();
+
+  function renderTable(){
+    const mine = Dashboard.myNovels();
+    const wrap = document.getElementById('tableWrap');
+    if(!mine.length){
+      wrap.innerHTML = `<div class="empty-state"><h3>هنوز رمانی منتشر نکرده‌اید.</h3>
+        <a href="create-novel.html" class="btn btn-primary">نوشتن اولین رمان</a>
+      </div>`;
+      return;
+    }
+    wrap.innerHTML = `<table class="dash-table">
+      <thead><tr><th></th><th>عنوان</th><th>وضعیت</th><th>فصل‌ها</th><th>بازدید</th><th>لایک</th><th>عملیات</th></tr></thead>
+      <tbody>
+        ${mine.map(n=>`<tr data-id="${n.id}">
+          <td><div class="row-cover"><img src="${n.cover}" alt=""></div></td>
+          <td><a href="novel.html?id=${n.id}">${n.title}</a></td>
+          <td>${Novels.statusLabel(n.status)}</td>
+          <td>${n.chapterCount}</td>
+          <td>${UI.formatNum(n.views)}</td>
+          <td>${UI.formatNum(n.likes)}</td>
+          <td class="dash-actions">
+            <a class="btn btn-ghost btn-sm" href="edit-novel.html?id=${n.id}">ویرایش</a>
+            <button class="btn btn-plum btn-sm" data-action="delete" data-id="${n.id}">حذف</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+
+    wrap.querySelectorAll('[data-action="delete"]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        Modal.open({
+          icon:'', iconClass:'danger', title:'حذف رمان',
+          body:'آیا از حذف این رمان و تمام فصل‌های آن مطمئن هستید؟ این عملیات قابل بازگشت نیست.',
+          actions:[
+            {label:'انصراف', kind:'ghost', onClick:()=>Modal.close()},
+            {label:'حذف رمان', kind:'danger', onClick:()=>{ Dashboard.deleteNovel(btn.dataset.id); Modal.close(); renderTable(); }}
+          ]
+        });
+      });
+    });
+  }
+};
+</script>
+<script src="../js/app.js"></script>
+</body>
+</html>

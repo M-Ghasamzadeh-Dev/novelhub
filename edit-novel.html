@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="author" content="مهدی قسم زاده">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ویرایش رمان — NovelHub</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/dashboard.css">
+<link rel="stylesheet" href="../css/responsive.css">
+<style>.genre-check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:18px;}
+.genre-check{display:flex;align-items:center;gap:6px;background:var(--bg-panel-2);border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;font-size:.82rem;}
+.tabs-2{display:flex;gap:4px;border-bottom:1px solid var(--border-subtle);margin-bottom:24px;}
+</style>
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container" style="max-width:800px;padding-top:40px;padding-bottom:80px;" id="main">
+
+  <div class="tabs-2">
+    <button class="tab-btn active" data-tab="details">اطلاعات رمان</button>
+    <button class="tab-btn" data-tab="chapters">فصل‌ها</button>
+    <button class="tab-btn" data-tab="addchapter">افزودن فصل</button>
+  </div>
+
+  <div class="tab-panel active" data-panel="details">
+    <form id="editForm" class="form-card" style="max-width:none;margin:0;">
+      <div class="image-drop" id="coverDrop" tabindex="0" role="button" aria-label="تغییر کاور">
+        <img id="coverPreview" alt="کاور رمان">
+        <button type="button" class="btn btn-ghost btn-sm drop-remove" id="changeCoverBtn">تغییر تصویر</button>
+        <input type="file" id="coverInput" accept="image/*" class="hidden">
+      </div>
+      <div class="field" style="margin-top:18px;"><label for="title">عنوان رمان</label><input type="text" id="title" required></div>
+      <div class="field"><label for="shortDesc">توضیح کوتاه</label><input type="text" id="shortDesc" required></div>
+      <div class="field"><label for="fullDesc">توضیحات کامل</label><textarea id="fullDesc" rows="4" required></textarea></div>
+      <div class="field"><label>ژانر</label><div class="genre-check-grid" id="genreGrid"></div></div>
+      <div class="field-row">
+        <div class="field"><label for="status">وضعیت</label>
+          <select id="status"><option value="ongoing">در حال انتشار</option><option value="complete">تکمیل‌شده</option></select>
+        </div>
+        <div class="field"><label for="ageRating">رده سنی</label>
+          <select id="ageRating"><option value="general">عمومی</option><option value="13">+۱۳</option><option value="16">+۱۶</option><option value="18">+۱۸</option></select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">ذخیره تغییرات</button>
+    </form>
+  </div>
+
+  <div class="tab-panel" data-panel="chapters">
+    <div class="chapter-list" id="chapterListWrap"></div>
+  </div>
+
+  <div class="tab-panel" data-panel="addchapter">
+    <form id="chapterForm" class="form-card" style="max-width:none;margin:0;">
+      <div class="field-row">
+        <div class="field"><label for="chapNumber">شماره فصل</label><input type="number" id="chapNumber" min="1" required></div>
+        <div class="field"><label for="chapTitle">عنوان فصل</label><input type="text" id="chapTitle" required></div>
+      </div>
+      <div class="field"><label for="chapContent">متن فصل</label><textarea id="chapContent" rows="8" required></textarea></div>
+      <div class="field"><label>تصاویر داخل فصل</label>
+        <div class="image-drop" id="chapImgDrop"><div>افزودن تصویر به فصل (اختیاری)</div><input type="file" id="chapImgInput" accept="image/*" class="hidden"></div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button type="submit" class="btn btn-ghost" data-mode="draft">ذخیره فصل</button>
+        <button type="submit" class="btn btn-primary" data-mode="publish">انتشار فصل</button>
+      </div>
+    </form>
+  </div>
+</main>
+<footer id="site-footer"></footer>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/ui.js"></script>
+<script>
+window.pageInit = function(){
+  if(!Auth.requireLogin()){ setTimeout(()=> location.href='login.html', 50); return; }
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  const novel = Repo.novelById(id);
+  if(!novel){ document.getElementById('main').innerHTML = '<div class="error-state"><h1>404</h1><h3>رمان پیدا نشد</h3></div>'; return; }
+
+  document.getElementById('genreGrid').innerHTML = GENRES.map(g=>`
+    <label class="genre-check"><input type="checkbox" value="${g.id}" ${novel.genres.includes(g.id)?'checked':''}> ${g.name}</label>`).join('');
+  document.getElementById('coverPreview').src = novel.cover;
+  document.getElementById('title').value = novel.title;
+  document.getElementById('shortDesc').value = novel.shortDesc;
+  document.getElementById('fullDesc').value = novel.fullDesc;
+  document.getElementById('status').value = novel.status;
+  document.getElementById('ageRating').value = novel.ageRating;
+
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector(`.tab-panel[data-panel="${btn.dataset.tab}"]`).classList.add('active');
+    });
+  });
+
+  let newCover = null;
+  document.getElementById('coverDrop').addEventListener('click', ()=> document.getElementById('coverInput').click());
+  document.getElementById('coverInput').addEventListener('change', function(){
+    const file = this.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{ newCover = reader.result; document.getElementById('coverPreview').src = newCover; };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('editForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const genres = Array.from(document.querySelectorAll('#genreGrid input:checked')).map(c=>c.value);
+    const novels = Repo.novels();
+    const idx = novels.findIndex(n=>n.id===id);
+    novels[idx] = {...novels[idx],
+      title:document.getElementById('title').value.trim(),
+      shortDesc:document.getElementById('shortDesc').value.trim(),
+      fullDesc:document.getElementById('fullDesc').value.trim(),
+      genres, status:document.getElementById('status').value, ageRating:document.getElementById('ageRating').value,
+      cover:newCover || novels[idx].cover, updated:new Date().toISOString()
+    };
+    Repo.saveNovels(novels);
+    Toast.show('تغییرات ذخیره شد.', 'success');
+  });
+
+  function renderChapters(){
+    const chapters = Repo.chapters(id);
+    const wrap = document.getElementById('chapterListWrap');
+    wrap.innerHTML = chapters.length ? chapters.map(c=>`
+      <a href="reader.html?id=${id}&c=${c.id}"><span>${c.title}</span><span class="text-muted">${new Date(c.published).toLocaleDateString('fa-IR')}</span></a>
+    `).join('') : `<p class="text-muted">هنوز فصلی اضافه نشده است.</p>`;
+  }
+  renderChapters();
+
+  document.getElementById('chapterForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const mode = e.submitter ? e.submitter.dataset.mode : 'publish';
+    const chapters = Repo.allChapters();
+    const number = Number(document.getElementById('chapNumber').value);
+    const newChapter = {
+      id: id+'-c'+Date.now(), novelId:id, number,
+      title: document.getElementById('chapTitle').value.trim(),
+      content: document.getElementById('chapContent').value.trim(),
+      published: new Date().toISOString(), draft: mode==='draft'
+    };
+    chapters.push(newChapter);
+    Repo.saveChapters(chapters);
+
+    const novels = Repo.novels();
+    const nIdx = novels.findIndex(n=>n.id===id);
+    novels[nIdx].chapterCount = Repo.chapters(id).length;
+    novels[nIdx].updated = new Date().toISOString();
+    Repo.saveNovels(novels);
+
+    Toast.show(mode==='draft' ? 'فصل به‌صورت پیش‌نویس ذخیره شد.' : 'فصل منتشر شد!', 'success');
+    e.target.reset();
+    renderChapters();
+  });
+};
+</script>
+<script src="../js/app.js"></script>
+</body>
+</html>

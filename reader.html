@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="author" content="مهدی قسم زاده">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title id="pageTitleTag">مطالعه رمان — NovelHub</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/reader.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+<div class="reader-toolbar">
+  <button class="btn-icon" id="chapterListBtn" title="فهرست فصل‌ها">☰</button>
+  <span class="rt-title" id="rtTitle"></span>
+  <div class="rt-group">
+    <button class="btn-icon" id="settingsBtn" title="تنظیمات مطالعه">تنظیمات</button>
+    <a href="novel.html" id="backToNovel" class="btn-icon" title="بازگشت به صفحه رمان">✕</a>
+  </div>
+  <div class="reader-settings" id="readerSettings">
+    <div class="rs-row">
+      <span>اندازه فونت</span>
+      <div class="rs-stepper">
+        <button id="fontMinus">－</button><span id="fontSizeLabel">۱۹</span><button id="fontPlus">＋</button>
+      </div>
+    </div>
+    <div class="rs-row">
+      <span>عرض متن</span>
+      <div class="rs-stepper">
+        <button data-width="600">باریک</button><button data-width="720">متوسط</button><button data-width="900">عریض</button>
+      </div>
+    </div>
+    <div class="rs-row">
+      <span>پوسته مطالعه</span>
+      <div class="rs-theme-btns">
+        <button data-rtheme="dark" aria-label="تیره"></button>
+        <button data-rtheme="sepia" aria-label="سپیا"></button>
+        <button data-rtheme="light" aria-label="روشن"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter-drawer" id="chapterDrawer">
+  <div class="chapter-drawer-head"><b>فهرست فصل‌ها</b><button class="btn-icon" id="closeDrawer">✕</button></div>
+  <div class="chapter-drawer-list" id="chapterDrawerList"></div>
+</div>
+<div class="mobile-backdrop" id="drawerBackdrop"></div>
+
+<main class="reader-wrap" id="readerWrap">
+  <p class="reader-chapter-label" id="chapterLabel"></p>
+  <h1 class="reader-h1" id="chapterTitle"></h1>
+  <div class="reader-body" id="chapterBody"></div>
+
+  <div class="reader-nav">
+    <a href="#" id="prevChapterBtn" class="btn btn-ghost">→ فصل قبلی</a>
+    <a href="novel.html" id="viewAllChapters" class="btn-ghost btn" style="border:none;">همه فصل‌ها</a>
+    <a href="#" id="nextChapterBtn" class="btn btn-primary">فصل بعدی ←</a>
+  </div>
+</main>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/reader.js"></script>
+<script>
+window.pageInit = function(){
+  const params = new URLSearchParams(location.search);
+  const novelId = params.get('id');
+  const novel = Repo.novelById(novelId);
+  if(!novel){ document.body.innerHTML = '<div class="container section"><div class="error-state"><h1>404</h1><h3>رمان پیدا نشد</h3><a class="btn btn-primary" href="categories.html">بازگشت</a></div></div>'; return; }
+
+  const chapters = Repo.chapters(novelId);
+  let chapterId = params.get('c') || (chapters[0] && chapters[0].id);
+  let idx = chapters.findIndex(c=>c.id===chapterId);
+  if(idx === -1) idx = 0;
+  const chapter = chapters[idx];
+
+  document.getElementById('pageTitleTag').textContent = chapter.title + ' — ' + novel.title;
+  document.getElementById('rtTitle').textContent = novel.title;
+  document.getElementById('backToNovel').href = 'novel.html?id='+novelId;
+  document.getElementById('chapterLabel').textContent = novel.title + ' · فصل ' + chapter.number + ' از ' + chapters.length;
+  document.getElementById('chapterTitle').textContent = chapter.title;
+  document.getElementById('chapterBody').innerHTML = chapter.content.split('\n\n').map(p=>`<p>${p}</p>`).join('');
+
+  const prevBtn = document.getElementById('prevChapterBtn');
+  const nextBtn = document.getElementById('nextChapterBtn');
+  if(idx>0){ prevBtn.href = `reader.html?id=${novelId}&c=${chapters[idx-1].id}`; } else { prevBtn.classList.add('hidden'); }
+  if(idx<chapters.length-1){ nextBtn.href = `reader.html?id=${novelId}&c=${chapters[idx+1].id}`; } else { nextBtn.textContent='پایان رمان'; nextBtn.href='novel.html?id='+novelId; }
+
+  Reader.markLastRead(novelId, chapter.id);
+  Reader.applySettings();
+  document.getElementById('fontSizeLabel').textContent = Reader.getSettings().fontSize.toLocaleString('fa-IR');
+
+  document.getElementById('fontMinus').addEventListener('click', ()=>{ Reader.changeFontSize(-1); document.getElementById('fontSizeLabel').textContent = Reader.getSettings().fontSize.toLocaleString('fa-IR'); });
+  document.getElementById('fontPlus').addEventListener('click', ()=>{ Reader.changeFontSize(1); document.getElementById('fontSizeLabel').textContent = Reader.getSettings().fontSize.toLocaleString('fa-IR'); });
+  document.querySelectorAll('[data-width]').forEach(b=> b.addEventListener('click', ()=> Reader.setWidth(Number(b.dataset.width))));
+  document.querySelectorAll('.rs-theme-btns button').forEach(b=> b.addEventListener('click', ()=> Reader.setTheme(b.dataset.rtheme)));
+
+  document.getElementById('settingsBtn').addEventListener('click', e=>{
+    e.stopPropagation();
+    document.getElementById('readerSettings').classList.toggle('open');
+  });
+  document.addEventListener('click', ()=> document.getElementById('readerSettings').classList.remove('open'));
+
+  const drawer = document.getElementById('chapterDrawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  document.getElementById('chapterDrawerList').innerHTML = chapters.map(c=>
+    `<a href="reader.html?id=${novelId}&c=${c.id}" class="${c.id===chapter.id?'active':''}">${c.title}</a>`).join('');
+  document.getElementById('chapterListBtn').addEventListener('click', ()=>{ drawer.classList.add('open'); backdrop.classList.add('open'); });
+  document.getElementById('closeDrawer').addEventListener('click', ()=>{ drawer.classList.remove('open'); backdrop.classList.remove('open'); });
+  backdrop.addEventListener('click', ()=>{ drawer.classList.remove('open'); backdrop.classList.remove('open'); });
+};
+document.addEventListener('DOMContentLoaded', ()=>{ if(window.pageInit) window.pageInit(); });
+</script>
+</body>
+</html>

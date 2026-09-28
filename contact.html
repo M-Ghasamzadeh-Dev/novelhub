@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="author" content="مهدی قسم زاده">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تماس با ما — NovelHub</title>
+<meta name="description" content="راه‌های ارتباط با تیم NovelHub.">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container">
+  <div class="form-card">
+    <h1>تماس با ما</h1>
+    <form id="contactForm">
+      <div class="field"><label for="cname">نام شما</label><input type="text" id="cname" required></div>
+      <div class="field"><label for="cemail">ایمیل</label><input type="email" id="cemail" required></div>
+      <div class="field"><label for="cmsg">پیام</label><textarea id="cmsg" rows="5" required></textarea></div>
+      <button type="submit" class="btn btn-primary btn-block">ارسال پیام</button>
+    </form>
+  </div>
+</main>
+<footer id="site-footer"></footer>
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/ui.js"></script>
+<script>
+window.pageInit = function(){
+  document.getElementById('contactForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    Toast.show('پیام شما ارسال شد. متشکریم!', 'success');
+    e.target.reset();
+  });
+};
+</script>
+<script src="../js/app.js"></script>
+</body>
+</html>

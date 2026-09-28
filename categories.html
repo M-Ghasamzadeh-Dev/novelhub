@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="author" content="مهدی قسم زاده">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دسته‌بندی رمان‌ها — NovelHub</title>
+<meta name="description" content="مرور رمان‌ها بر اساس دسته‌بندی در NovelHub.">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+<a href="#main" class="skip-link">رفتن به محتوای اصلی</a>
+<header id="site-header"></header>
+
+<main id="main" class="container section">
+  <div class="section-head">
+    <h2 id="pageTitle">دسته‌بندی‌ها</h2>
+  </div>
+
+  <div id="allCategoriesView">
+    <div class="cat-grid" id="categoryGrid"></div>
+  </div>
+
+  <div id="singleCategoryView" class="hidden">
+    <div class="filter-bar">
+      <select id="statusFilter">
+        <option value="">همه وضعیت‌ها</option>
+        <option value="ongoing">در حال انتشار</option>
+        <option value="complete">تکمیل‌شده</option>
+      </select>
+      <select id="ageFilter">
+        <option value="">همه رده‌های سنی</option>
+        <option value="general">عمومی</option>
+        <option value="13">+۱۳</option>
+        <option value="16">+۱۶</option>
+        <option value="18">+۱۸</option>
+      </select>
+      <select id="sortFilter">
+        <option value="newest">جدیدترین</option>
+        <option value="popular">محبوب‌ترین</option>
+        <option value="views">بیشترین بازدید</option>
+      </select>
+      <a href="categories.html" class="btn btn-ghost btn-sm">← همه دسته‌ها</a>
+    </div>
+    <div class="novel-grid" id="resultGrid"></div>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/novels.js"></script>
+<script src="../js/search.js"></script>
+<script>
+window.pageInit = function(){
+  const params = new URLSearchParams(location.search);
+  const genreId = params.get('g');
+
+  if(!genreId){
+    document.getElementById('categoryGrid').innerHTML = GENRES.map(g=>`
+      <a class="cat-card" href="categories.html?g=${g.id}">
+        <b>${g.name}</b>
+        <span>${Repo.novels().filter(n=>n.genres.includes(g.id)).length} رمان</span>
+      </a>`).join('');
+    return;
+  }
+
+  document.getElementById('allCategoriesView').classList.add('hidden');
+  document.getElementById('singleCategoryView').classList.remove('hidden');
+  document.getElementById('pageTitle').textContent = 'دسته‌بندی: ' + genreName(genreId);
+
+  const grid = document.getElementById('resultGrid');
+  const statusFilter = document.getElementById('statusFilter');
+  const ageFilter = document.getElementById('ageFilter');
+  const sortFilter = document.getElementById('sortFilter');
+
+  function refresh(){
+    const list = Search.run({genre:genreId, status:statusFilter.value, age:ageFilter.value, sort:sortFilter.value});
+    Novels.renderGrid(grid, list);
+    Novels.bindCardEvents(grid);
+  }
+  [statusFilter, ageFilter, sortFilter].forEach(el=> el.addEventListener('change', refresh));
+  refresh();
+};
+</script>
+<script src="../js/app.js"></script>
+</body>
+</html>

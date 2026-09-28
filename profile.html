@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="author" content="مهدی قسم زاده">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title id="pageTitleTag">پروفایل — NovelHub</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/dashboard.css">
+<link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+<header id="site-header"></header>
+<main class="container" id="main"></main>
+<footer id="site-footer"></footer>
+
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/novels.js"></script>
+<script>
+window.pageInit = function(){
+  const params = new URLSearchParams(location.search);
+  const authorId = params.get('author');
+  const main = document.getElementById('main');
+
+  let person, isSelf = false, novelsOfPerson = [];
+  if(authorId){
+    const a = Repo.authorById(authorId);
+    if(!a){ main.innerHTML = '<div class="error-state"><h1>404</h1><h3>کاربر پیدا نشد</h3></div>'; return; }
+    person = {username:a.name, avatar:a.avatar, bio:a.bio, followers:a.followers, following:0};
+    novelsOfPerson = Repo.novels().filter(n=>n.author===a.id);
+  } else {
+    if(!Auth.isLoggedIn()){ location.href = 'login.html'; return; }
+    person = Auth.currentUser();
+    isSelf = true;
+    novelsOfPerson = Dashboard.myNovels();
+  }
+
+  document.getElementById('pageTitleTag').textContent = person.username + ' — NovelHub';
+  const bookmarks = isSelf ? Repo.bookmarks().filter(b=>b.userId===person.id).map(b=>Repo.novelById(b.novelId)).filter(Boolean) : [];
+
+  main.innerHTML = `
+    <div class="profile-hero">
+      <div class="profile-avatar"><img src="${person.avatar}" alt="${person.username}"></div>
+      <div class="profile-info">
+        <h1>${person.username}</h1>
+        <p>${person.bio || 'هنوز بیوگرافی‌ای ثبت نشده است.'}</p>
+        <div class="profile-stats">
+          <span><b>${novelsOfPerson.length}</b> رمان</span>
+          <span><b>${UI.formatNum(person.followers||0)}</b> دنبال‌کننده</span>
+          <span><b>${person.following||0}</b> دنبال‌شده</span>
+        </div>
+      </div>
+      ${isSelf ? `<div class="profile-actions"><a href="dashboard.html" class="btn btn-primary">پنل نویسنده</a></div>`
+               : `<div class="profile-actions"><button class="btn btn-primary" id="followBtn">دنبال کردن</button></div>`}
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="novels">رمان‌ها</button>
+      ${isSelf ? `<button class="tab-btn" data-tab="favs">علاقه‌مندی‌ها</button>` : ''}
+      <button class="tab-btn" data-tab="activity">فعالیت‌ها</button>
+    </div>
+
+    <div class="tab-panel active" data-panel="novels">
+      <div class="novel-grid" id="novelsGrid"></div>
+    </div>
+    ${isSelf ? `<div class="tab-panel" data-panel="favs"><div class="novel-grid" id="favsGrid"></div></div>` : ''}
+    <div class="tab-panel" data-panel="activity">
+      <p class="text-muted">فعالیت‌های اخیر به‌زودی اینجا نمایش داده می‌شود.</p>
+    </div>
+  `;
+
+  Novels.renderGrid(document.getElementById('novelsGrid'), novelsOfPerson);
+  Novels.bindCardEvents(document.getElementById('novelsGrid'));
+  if(isSelf){
+    Novels.renderGrid(document.getElementById('favsGrid'), bookmarks);
+    Novels.bindCardEvents(document.getElementById('favsGrid'));
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector(`.tab-panel[data-panel="${btn.dataset.tab}"]`).classList.add('active');
+    });
+  });
+
+  document.getElementById('followBtn')?.addEventListener('click', function(){
+    if(!Auth.requireLogin()) return;
+    this.textContent = this.textContent === 'دنبال کردن' ? 'دنبال‌شده ✓' : 'دنبال کردن';
+    Toast.show('انجام شد.', 'success');
+  });
+};
+</script>
+<script src="../js/dashboard.js"></script>
+<script src="../js/app.js"></script>
+</body>
+</html>
