@@ -1,75 +1,59 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>اعلان‌ها — NovelHub</title>
-<link rel="stylesheet" href="../css/style.css">
-<link rel="stylesheet" href="../css/components.css">
-<link rel="stylesheet" href="../css/dashboard.css">
-<link rel="stylesheet" href="../css/responsive.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>اعلان‌ها | شب‌نامه</title>
+  <meta name="description" content="اعلان‌های لایک، کامنت، دنبال‌کننده و فصل‌های جدید.">
+  <meta name="theme-color" content="#0e0c12">
+  <meta name="robots" content="index, follow">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fa_IR">
+  <meta property="og:site_name" content="شب‌نامه">
+  <meta property="og:title" content="اعلان‌ها | شب‌نامه">
+  <meta property="og:description" content="اعلان‌های لایک، کامنت، دنبال‌کننده و فصل‌های جدید.">
+  <meta property="og:image" content="../assets/images/og-cover.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+  <!-- فونت‌ها: وزیرمتن برای رابط کاربری، نسخ برای متن ادبی -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&family=Vazirmatn:wght@300;400;500;700;800;900&display=swap">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <!-- تم قبل از رندر اعمال می‌شود تا صفحه چشمک نزند -->
+  <script src="../js/theme.js"></script>
 </head>
-<body>
-<header id="site-header"></header>
-<main class="container section">
-  <div class="section-head"><h2>اعلان‌ها</h2><button class="btn btn-ghost btn-sm" id="markAllBtn">علامت‌گذاری همه به‌عنوان خوانده‌شده</button></div>
-  <div class="notif-list" id="notifList"></div>
-</main>
-<footer id="site-footer"></footer>
+<body data-page="notifications">
+  <a class="skip-link" href="#main">پرش به محتوای اصلی</a>
+  <div id="site-header"></div>
+  <main id="main" class="page" tabindex="-1">
+    <div class="container notif-wrap">
+      <header class="page-head" style="padding-inline:0"><p class="eyebrow">صندوق شب</p><h1>اعلان‌ها</h1></header>
+      <div class="notif-toolbar">
+        <div class="tabs" role="tablist" aria-label="فیلتر اعلان‌ها" id="notifTabs">
+          <button role="tab" data-tab="all" aria-selected="true">همه</button>
+          <button role="tab" data-tab="unread" aria-selected="false" tabindex="-1">خوانده‌نشده <span class="chip chip--xs chip--gold" id="unreadCount"></span></button>
+        </div>
+        <button type="button" class="btn btn--ghost btn--sm" id="markAll"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg>خواندن همه</button>
+      </div>
+      <ul class="notification-list" id="notificationList" aria-live="polite"></ul>
+    </div>
+  </main>
+  <div id="site-footer"></div>
 
-<script src="../js/data.js"></script>
-<script src="../js/auth.js"></script>
-<script src="../js/theme.js"></script>
-<script src="../js/ui.js"></script>
-<script>
-function seedDemoNotifs(){
-  const u = Auth.currentUser();
-  const existing = Repo.notifications().filter(n=>n.userId===u.id);
-  if(existing.length) return;
-  const sample = Repo.novels().slice(0,4);
-  const list = Repo.notifications();
-  const templates = [
-    {icon:'❤️', text:n=>`کاربری رمان «${n.title}» شما را لایک کرد.`},
-    {icon:'💬', text:n=>`نظر جدیدی روی رمان «${n.title}» شما ثبت شد.`},
-    {icon:'📖', text:n=>`فصل جدید رمان مورد علاقه‌ی «${n.title}» منتشر شد.`},
-    {icon:'⭐', text:n=>`رمان «${n.title}» شما به علاقه‌مندی‌های یک کاربر اضافه شد.`}
-  ];
-  sample.forEach((n,i)=>{
-    const tpl = templates[i%templates.length];
-    list.push({id:'nt_'+i, userId:u.id, icon:tpl.icon, text:tpl.text(n), date:new Date(Date.now()-i*3600000*7).toISOString(), read:i>1});
-  });
-  Repo.saveNotifications(list);
-}
-
-window.pageInit = function(){
-  if(!Auth.isLoggedIn()){ location.href = 'login.html'; return; }
-  seedDemoNotifs();
-  render();
-
-  function render(){
-    const u = Auth.currentUser();
-    const mine = Repo.notifications().filter(n=>n.userId===u.id).sort((a,b)=>new Date(b.date)-new Date(a.date));
-    const list = document.getElementById('notifList');
-    if(!mine.length){
-      list.innerHTML = `<div class="empty-state"><div class="icon">🔔</div><h3>اعلانی وجود ندارد.</h3></div>`;
-      return;
-    }
-    list.innerHTML = mine.map(n=>`
-      <div class="notif-item ${n.read?'':'unread'}" data-id="${n.id}">
-        <div class="notif-icon">${n.icon}</div>
-        <div class="notif-body"><p>${n.text}</p><time>${UI.timeAgo(n.date)}</time></div>
-      </div>`).join('');
-  }
-
-  document.getElementById('markAllBtn').addEventListener('click', ()=>{
-    const u = Auth.currentUser();
-    const all = Repo.notifications().map(n=> n.userId===u.id ? {...n, read:true} : n);
-    Repo.saveNotifications(all);
-    render();
-    Toast.show('همه اعلان‌ها خوانده‌شده علامت زده شدند.');
-  });
-};
-</script>
-<script src="../js/app.js"></script>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/favorites.js"></script>
+  <script src="../js/comments.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/novels.js"></script>
+  <script src="../js/reader.js"></script>
+  <script src="../js/dashboard.js"></script>
 </body>
 </html>

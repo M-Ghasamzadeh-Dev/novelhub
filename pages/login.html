@@ -1,67 +1,66 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ورود — NovelHub</title>
-<link rel="stylesheet" href="../css/style.css">
-<link rel="stylesheet" href="../css/components.css">
-<link rel="stylesheet" href="../css/responsive.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ورود به حساب | شب‌نامه</title>
+  <meta name="description" content="ورود به حساب کاربری شب‌نامه برای نوشتن رمان، کامنت گذاشتن و ذخیره‌ی رمان‌های مورد علاقه.">
+  <meta name="theme-color" content="#0e0c12">
+  <meta name="robots" content="index, follow">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fa_IR">
+  <meta property="og:site_name" content="شب‌نامه">
+  <meta property="og:title" content="ورود به حساب | شب‌نامه">
+  <meta property="og:description" content="ورود به حساب کاربری شب‌نامه برای نوشتن رمان، کامنت گذاشتن و ذخیره‌ی رمان‌های مورد علاقه.">
+  <meta property="og:image" content="../assets/images/og-cover.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+  <!-- فونت‌ها: وزیرمتن برای رابط کاربری، نسخ برای متن ادبی -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&family=Vazirmatn:wght@300;400;500;700;800;900&display=swap">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <!-- تم قبل از رندر اعمال می‌شود تا صفحه چشمک نزند -->
+  <script src="../js/theme.js"></script>
 </head>
-<body>
-<header id="site-header"></header>
-<main class="container">
-  <div class="form-card">
-    <h1>ورود به حساب کاربری</h1>
-    <p class="form-sub">خوشحالیم که برگشتی! برای ادامه وارد شو.</p>
-    <form id="loginForm" novalidate>
-      <div class="field">
-        <label for="identifier">ایمیل یا نام کاربری</label>
-        <input type="text" id="identifier" required>
-      </div>
-      <div class="field">
-        <label for="password">رمز عبور</label>
-        <input type="password" id="password" required>
-        <small class="error hidden" id="loginError"></small>
-      </div>
-      <div class="checkbox-row" style="justify-content:space-between;display:flex;width:100%;">
-        <label style="display:flex;gap:6px;align-items:center;"><input type="checkbox" id="rememberMe"> مرا به خاطر بسپار</label>
-        <a href="#" style="color:var(--gold);font-size:.85rem;" id="forgotPasswordLink">فراموشی رمز عبور</a>
-      </div>
-      <button type="submit" class="btn btn-primary btn-block">ورود</button>
-    </form>
-    <p class="form-foot">حساب ندارید؟ <a href="register.html">ثبت‌نام کنید</a></p>
-    <p class="form-foot"><a href="home.html">ادامه به‌صورت مهمان ←</a></p>
-  </div>
-</main>
-<footer id="site-footer"></footer>
+<body data-page="login">
+  <a class="skip-link" href="#main">پرش به محتوای اصلی</a>
+  <div id="site-header"></div>
+  <main id="main" class="page" tabindex="-1">
+    <div class="auth-page">
+      <aside class="auth-art" aria-hidden="true"><span class="auth-art__moon"></span>
+          <blockquote>«هر شب، کسی جایی از این شهر قصه‌ای می‌نویسد که قرار است تو بخوانی‌اش.»<cite>شب‌نامه</cite></blockquote></aside>
+      <section class="auth-main">
+        <div class="auth-card">
+          <h1>خوش برگشتی</h1>
+          <p>برای ادامه‌ی قصه‌ها وارد حساب خود شوید.</p>
+          <form id="loginForm" class="auth-form" novalidate>
+            <p class="form-alert" id="loginError" role="alert" hidden></p>
+            <div class="field"><label for="identifier">ایمیل یا نام کاربری</label><input id="identifier" name="identifier" class="input" type="text" autocomplete="username" required dir="auto"></div>
+            <div class="field"><label for="password">رمز عبور</label><div class="password-field"><input id="password" name="password" class="input" type="password" autocomplete="current-password" required dir="auto"><button type="button" data-toggle-password="password" aria-label="نمایش رمز عبور"></button></div></div>
+            <div class="row-between"><label class="check"><input type="checkbox" name="remember" checked>مرا به خاطر بسپار</label><button type="button" class="link-btn" id="forgotBtn">فراموشی رمز عبور</button></div>
+            <button type="submit" class="btn btn--primary btn--lg btn--block">ورود</button>
+          </form>
+          <p class="auth-switch">حساب ندارید؟ <a href="register.html">ثبت‌نام کنید</a></p>
+          <div class="demo-hint"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><div><strong>حساب نمایشی (نویسنده):</strong><br><code>demo@novel.ir</code> / <code>demo1234</code><br>حساب خواننده‌ی بدون رمان: <code>reader@novel.ir</code> / <code>reader1234</code><br><button type="button" class="link-btn" id="fillDemo">پر کردن خودکار حساب نمایشی</button></div></div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <div id="site-footer"></div>
 
-<script src="../js/data.js"></script>
-<script src="../js/auth.js"></script>
-<script src="../js/theme.js"></script>
-<script src="../js/ui.js"></script>
-<script>
-window.pageInit = function(){
-  document.getElementById('loginForm').addEventListener('submit', e=>{
-    e.preventDefault();
-    const identifier = document.getElementById('identifier').value.trim();
-    const password = document.getElementById('password').value;
-    const errEl = document.getElementById('loginError');
-    const result = Auth.login({identifier, password});
-    if(!result.ok){
-      errEl.textContent = result.error;
-      errEl.classList.remove('hidden');
-      return;
-    }
-    Toast.show('خوش آمدید، ' + result.user.username + '!', 'success');
-    setTimeout(()=> location.href = 'home.html', 500);
-  });
-  document.getElementById('forgotPasswordLink').addEventListener('click', e=>{
-    e.preventDefault();
-    Toast.show('این نسخه صرفاً یک نمونه‌ی نمایشی است.');
-  });
-};
-</script>
-<script src="../js/app.js"></script>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/favorites.js"></script>
+  <script src="../js/comments.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/novels.js"></script>
+  <script src="../js/reader.js"></script>
+  <script src="../js/dashboard.js"></script>
 </body>
 </html>

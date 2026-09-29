@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>دسته‌بندی رمان‌ها | شب‌نامه</title>
-  <meta name="description" content="همه‌ی دسته‌بندی‌های رمان در شب‌نامه: عاشقانه، درام، معمایی، فانتزی، جنایی، ترسناک، علمی تخیلی و…">
+  <title>نویسندگان | شب‌نامه</title>
+  <meta name="description" content="نویسندگان شب‌نامه را بشناسید و دنبال کنید.">
   <meta name="theme-color" content="#0e0c12">
   <meta name="robots" content="index, follow">
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:locale" content="fa_IR">
   <meta property="og:site_name" content="شب‌نامه">
-  <meta property="og:title" content="دسته‌بندی رمان‌ها | شب‌نامه">
-  <meta property="og:description" content="همه‌ی دسته‌بندی‌های رمان در شب‌نامه: عاشقانه، درام، معمایی، فانتزی، جنایی، ترسناک، علمی تخیلی و…">
+  <meta property="og:title" content="نویسندگان | شب‌نامه">
+  <meta property="og:description" content="نویسندگان شب‌نامه را بشناسید و دنبال کنید.">
   <meta property="og:image" content="../assets/images/og-cover.svg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
@@ -26,11 +26,13 @@
   <!-- تم قبل از رندر اعمال می‌شود تا صفحه چشمک نزند -->
   <script src="../js/theme.js"></script>
 </head>
-<body data-page="categories">
+<body data-page="authors">
   <a class="skip-link" href="#main">پرش به محتوای اصلی</a>
   <div id="site-header"></div>
   <main id="main" class="page" tabindex="-1">
-    <div id="categoriesRoot"></div>
+    <header class="page-head container page-head--row"><div><p class="eyebrow">قلم‌ها</p><h1>نویسندگان</h1><p class="page-head__lead">صداهایی که هر شب قصه‌ای تازه می‌گویند.</p></div>
+      <div class="input-icon" style="min-width:260px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><label class="sr-only" for="authorSearch">جستجوی نویسنده</label><input id="authorSearch" class="input" type="search" placeholder="نام نویسنده…"></div></header>
+    <section class="container" style="padding-bottom:64px"><div class="author-grid" id="authorsList"></div></section>
   </main>
   <div id="site-footer"></div>
 

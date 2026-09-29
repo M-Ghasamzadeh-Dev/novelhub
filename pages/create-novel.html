@@ -1,159 +1,50 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ایجاد رمان جدید — NovelHub</title>
-<link rel="stylesheet" href="../css/style.css">
-<link rel="stylesheet" href="../css/components.css">
-<link rel="stylesheet" href="../css/dashboard.css">
-<link rel="stylesheet" href="../css/responsive.css">
-<style>.genre-check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:18px;}
-.genre-check{display:flex;align-items:center;gap:6px;background:var(--bg-panel-2);border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;font-size:.82rem;}
-.content-type-tabs{display:flex;gap:8px;margin-bottom:16px;}
-.content-type-tabs button{flex:1;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);background:var(--bg-panel-2);color:var(--text-secondary);}
-.content-type-tabs button.active{border-color:var(--gold);color:var(--gold);}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>نوشتن رمان جدید | شب‌نامه</title>
+  <meta name="description" content="ایجاد رمان جدید در شب‌نامه: عنوان، ژانر، کاور، رده سنی و نوع محتوا.">
+  <meta name="theme-color" content="#0e0c12">
+  <meta name="robots" content="index, follow">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fa_IR">
+  <meta property="og:site_name" content="شب‌نامه">
+  <meta property="og:title" content="نوشتن رمان جدید | شب‌نامه">
+  <meta property="og:description" content="ایجاد رمان جدید در شب‌نامه: عنوان، ژانر، کاور، رده سنی و نوع محتوا.">
+  <meta property="og:image" content="../assets/images/og-cover.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+  <!-- فونت‌ها: وزیرمتن برای رابط کاربری، نسخ برای متن ادبی -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&family=Vazirmatn:wght@300;400;500;700;800;900&display=swap">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <!-- تم قبل از رندر اعمال می‌شود تا صفحه چشمک نزند -->
+  <script src="../js/theme.js"></script>
 </head>
-<body>
-<header id="site-header"></header>
-<main class="container" style="max-width:760px;padding-top:40px;padding-bottom:80px;">
-  <div class="section-head"><h2>ایجاد رمان جدید</h2></div>
+<body data-page="create-novel">
+  <a class="skip-link" href="#main">پرش به محتوای اصلی</a>
+  <div id="site-header"></div>
+  <main id="main" class="page" tabindex="-1">
+    <header class="page-head container"><nav class="breadcrumb" aria-label="مسیر صفحه"><a href="dashboard.html">پنل نویسنده</a><span aria-hidden="true">/</span><span aria-current="page">رمان جدید</span></nav><h1>نوشتن رمان جدید</h1><p class="page-head__lead">اطلاعات رمان را وارد کنید. بعد از ایجاد، مستقیم به صفحه‌ی نوشتن اولین فصل می‌روید.</p></header>
+    <div class="container" id="novelFormRoot"></div>
+  </main>
+  <div id="site-footer"></div>
 
-  <form id="novelForm" class="form-card" style="max-width:none;margin:0;">
-    <div class="content-type-tabs" role="tablist" aria-label="نوع محتوا">
-      <button type="button" class="active" data-type="text">📝 متن</button>
-      <button type="button" data-type="image">🖼️ تصویر</button>
-      <button type="button" data-type="mixed">🎬 متن + تصویر</button>
-    </div>
-
-    <div class="image-drop" id="coverDrop" tabindex="0" role="button" aria-label="انتخاب تصویر کاور">
-      <img id="coverPreview" class="hidden" alt="پیش‌نمایش کاور">
-      <div id="coverPlaceholder">🖼️ تصویر کاور را انتخاب کنید</div>
-      <button type="button" class="btn btn-ghost btn-sm drop-remove hidden" id="removeCoverBtn">حذف تصویر</button>
-      <input type="file" id="coverInput" accept="image/*" class="hidden">
-    </div>
-
-    <div class="field" style="margin-top:18px;">
-      <label for="title">عنوان رمان</label>
-      <input type="text" id="title" required>
-    </div>
-    <div class="field">
-      <label for="shortDesc">توضیح کوتاه</label>
-      <input type="text" id="shortDesc" required maxlength="140">
-    </div>
-    <div class="field">
-      <label for="fullDesc">توضیحات کامل</label>
-      <textarea id="fullDesc" rows="4" required></textarea>
-    </div>
-
-    <div class="field">
-      <label>ژانر (می‌توانید چند مورد انتخاب کنید)</label>
-      <div class="genre-check-grid" id="genreGrid"></div>
-    </div>
-
-    <div class="field-row">
-      <div class="field">
-        <label for="status">وضعیت رمان</label>
-        <select id="status">
-          <option value="ongoing">در حال انتشار</option>
-          <option value="complete">تکمیل‌شده</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="ageRating">رده سنی</label>
-        <select id="ageRating">
-          <option value="general">عمومی</option>
-          <option value="13">+۱۳</option>
-          <option value="16">+۱۶</option>
-          <option value="18">+۱۸ (محتوای بزرگسال)</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="field-row">
-      <div class="field">
-        <label for="tags">تگ‌ها (با ویرگول جدا کنید)</label>
-        <input type="text" id="tags" placeholder="مثلاً: احساسی، پرکشش">
-      </div>
-      <div class="field">
-        <label for="penName">نام مستعار نویسنده</label>
-        <input type="text" id="penName" placeholder="اختیاری">
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary btn-block">ایجاد رمان</button>
-  </form>
-</main>
-<footer id="site-footer"></footer>
-
-<script src="../js/data.js"></script>
-<script src="../js/auth.js"></script>
-<script src="../js/theme.js"></script>
-<script src="../js/ui.js"></script>
-<script>
-window.pageInit = function(){
-  if(!Auth.requireLogin()){ setTimeout(()=> location.href='login.html', 50); return; }
-
-  document.querySelectorAll('.content-type-tabs button').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      document.querySelectorAll('.content-type-tabs button').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-    });
-  });
-
-  document.getElementById('genreGrid').innerHTML = GENRES.map(g=>`
-    <label class="genre-check"><input type="checkbox" value="${g.id}"> ${g.icon} ${g.name}</label>`).join('');
-
-  let coverData = null;
-  const drop = document.getElementById('coverDrop');
-  const input = document.getElementById('coverInput');
-  const preview = document.getElementById('coverPreview');
-  const placeholder = document.getElementById('coverPlaceholder');
-  const removeBtn = document.getElementById('removeCoverBtn');
-  drop.addEventListener('click', ()=> input.click());
-  input.addEventListener('change', ()=>{
-    const file = input.files[0]; if(!file) return;
-    const reader = new FileReader();
-    reader.onload = ()=>{ coverData = reader.result; preview.src = coverData; preview.classList.remove('hidden'); placeholder.classList.add('hidden'); removeBtn.classList.remove('hidden'); };
-    reader.readAsDataURL(file);
-  });
-  removeBtn.addEventListener('click', e=>{ e.stopPropagation(); coverData=null; input.value=''; preview.classList.add('hidden'); placeholder.classList.remove('hidden'); removeBtn.classList.add('hidden'); });
-
-  document.getElementById('novelForm').addEventListener('submit', e=>{
-    e.preventDefault();
-    const genres = Array.from(document.querySelectorAll('#genreGrid input:checked')).map(c=>c.value);
-    if(!genres.length){ Toast.show('حداقل یک ژانر انتخاب کنید.', 'error'); return; }
-
-    const u = Auth.currentUser();
-    const novels = Repo.novels();
-    const id = 'n_'+Date.now();
-    novels.unshift({
-      id, title:document.getElementById('title').value.trim(),
-      author:'self_'+u.id,
-      cover: coverData || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&q=80',
-      genres, shortDesc:document.getElementById('shortDesc').value.trim(),
-      fullDesc:document.getElementById('fullDesc').value.trim(),
-      status:document.getElementById('status').value, ageRating:document.getElementById('ageRating').value,
-      views:0, likes:0, dislikes:0, chapterCount:0,
-      published:new Date().toISOString(), updated:new Date().toISOString(),
-      tags:document.getElementById('tags').value.split(',').map(t=>t.trim()).filter(Boolean),
-      createdBy:u.id
-    });
-    Repo.saveNovels(novels);
-
-    // Register author record so cards/profile pages can resolve it
-    const authors = Repo.authors();
-    if(!authors.some(a=>a.id==='self_'+u.id)){
-      authors.push({id:'self_'+u.id, name:document.getElementById('penName').value.trim() || u.username, avatar:u.avatar, bio:'', followers:0});
-      Repo._set(DB_KEYS.AUTHORS, authors);
-    }
-
-    Toast.show('رمان با موفقیت ایجاد شد!', 'success');
-    setTimeout(()=> location.href = 'edit-novel.html?id='+id+'&new=1', 500);
-  });
-};
-</script>
-<script src="../js/app.js"></script>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/favorites.js"></script>
+  <script src="../js/comments.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/novels.js"></script>
+  <script src="../js/reader.js"></script>
+  <script src="../js/dashboard.js"></script>
 </body>
 </html>
